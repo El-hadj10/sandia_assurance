@@ -60,5 +60,18 @@ def add_security_headers(response):
     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
     return response
 
+# Gestionnaires d'erreurs HTTP personnalisés
+@app.errorhandler(404)
+def page_not_found(error):
+    """Gère les pages non trouvées avec une page personnalisée"""
+    from flask import render_template
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Gère les erreurs serveur avec une page personnalisée"""
+    from flask import render_template
+    return render_template('500.html'), 500
+
 # Initialisation de la base de données au démarrage de l'application
 setup_database()

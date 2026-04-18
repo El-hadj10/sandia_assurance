@@ -2,30 +2,85 @@
 {% block title %}Devis{% endblock %}
 {% block content %}
 <section class="section">
+    {% if error %}
+    <div class="alert alert-error" role="alert">{{ error }}</div>
+    {% endif %}
+    
     <div class="cards">
         <div class="card">
             <h2>Demande de devis</h2>
             <p>Calculez un tarif de base en direct, puis confirmez votre choix en quelques minutes.</p>
-            <form method="post">
-                <label for="name">Nom</label>
-                <input type="text" id="name" name="name" placeholder="Votre nom" required />
-                <label for="age">Âge</label>
-                <input type="number" id="age" name="age" min="18" max="120" placeholder="Âge du conducteur" required />
-                <label for="vehicle_type">Type de contrat</label>
-                <select id="vehicle_type" name="vehicle_type">
-                    <option value="auto">Assurance auto</option>
-                    <option value="moto">Assurance moto</option>
-                    <option value="habitation">Assurance habitation</option>
-                    <option value="sante">Assurance santé</option>
-                </select>
-                <label for="coverage">Niveau de couverture</label>
-                <select id="coverage" name="coverage">
-                    <option value="standard">Standard</option>
-                    <option value="premium">Premium</option>
-                </select>
-                <button class="button" type="submit">Calculer mon devis</button>
+            
+            <form method="post" novalidate>
+                <!-- Token CSRF -->
+                {{ form.hidden_tag() }}
+                
+                <!-- Champ nom -->
+                <div>
+                    {{ form.name.label }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.name(class="form-input", placeholder="Votre nom") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Champ âge -->
+                <div>
+                    {{ form.age.label }}
+                    {% if form.age.errors %}
+                        {{ form.age(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.age.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.age(class="form-input", placeholder="Entre 18 et 120 ans") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Champ type couverture -->
+                <div>
+                    {{ form.vehicle_type.label }}
+                    {% if form.vehicle_type.errors %}
+                        {{ form.vehicle_type(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.vehicle_type.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.vehicle_type(class="form-input") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Champ niveau couverture -->
+                <div>
+                    {{ form.coverage.label }}
+                    {% if form.coverage.errors %}
+                        {{ form.coverage(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.coverage.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.coverage(class="form-input") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Bouton soumettre -->
+                {{ form.submit(class="button", value="Calculer mon devis") }}
             </form>
         </div>
+        
+        <!-- Aperçu instantané -->
         <div class="card preview-card">
             <h2>Aperçu instantané</h2>
             <p>Les informations du formulaire sont affichées en temps réel pour vous aider à prendre la meilleure décision.</p>
@@ -51,10 +106,12 @@
             </div>
         </div>
     </div>
+    
+    <!-- Résultat du devis -->
     {% if quote_result %}
     <div class="card">
-        <h3>Estimation pour {{ quote_result.name }}</h3>
-        <p>{{ quote_result.message }}</p>
+        <h3>✓ Estimation pour {{ quote_result.name }}</h3>
+        <p class="alert alert-success">{{ quote_result.message }}</p>
         <div class="cards">
             <div class="card">
                 <h4>Type de contrat</h4>
@@ -66,7 +123,7 @@
             </div>
             <div class="card">
                 <h4>Prix estimé</h4>
-                <p><strong>{{ quote_result.total_price }} €</strong></p>
+                <p><strong style="font-size: 1.5rem; color: #ff8a00;">{{ quote_result.total_price }} €</strong></p>
             </div>
         </div>
         <p>Ce tarif est indicatif. Contactez-nous pour finaliser votre proposition et obtenir un contrat adapté.</p>

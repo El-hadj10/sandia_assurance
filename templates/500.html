@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Erreur 500 - Erreur serveur{% endblock %}
+{% block content %}
+<section class="section" style="text-align: center; padding: 4rem 0;">
+    <h1 style="font-size: 4rem; margin: 0; color: #ef4444;">500</h1>
+    <h2>Erreur serveur</h2>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin: 1.5rem 0;">
+        Oups ! Une erreur s'est produite sur notre serveur. Notre équipe a été notifiée et travaille à la résolution du problème.
+    </p>
+    <div class="buttons" style="justify-content: center;">
+        <a href="/" class="button">← Retour à l'accueil</a>
+        <a href="/contact" class="button" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 2px solid #ef4444;">Signaler le problème</a>
+    </div>
+</section>
+{% endblock %}

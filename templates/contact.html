@@ -6,14 +6,58 @@
         <div class="card">
             <h2>Parlons de votre protection</h2>
             <p>Écrivez-nous et notre équipe vous répondra en priorité. Nous traitons chaque demande avec soin.</p>
-            <form method="post">
-                <label for="name">Nom</label>
-                <input type="text" id="name" name="name" placeholder="Votre nom" required />
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="votre@email.com" required />
-                <label for="message">Message</label>
-                <textarea id="message" name="message" rows="5" placeholder="Votre message" required></textarea>
-                <button class="button" type="submit">Envoyer</button>
+            
+            <form method="post" novalidate>
+                <!-- Token CSRF -->
+                {{ form.hidden_tag() }}
+                
+                <!-- Champ nom -->
+                <div>
+                    {{ form.name.label }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.name(class="form-input", placeholder="Votre nom") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Champ email -->
+                <div>
+                    {{ form.email.label }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-input error") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.email(class="form-input", placeholder="votre@email.com") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Champ message -->
+                <div>
+                    {{ form.message.label }}
+                    {% if form.message.errors %}
+                        {{ form.message(class="form-input error", rows="5") }}
+                        <ul class="errors" role="alert">
+                            {% for error in form.message.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.message(class="form-input", rows="5", placeholder="Votre message (10-1000 caractères)") }}
+                    {% endif %}
+                </div>
+                
+                <!-- Bouton soumettre -->
+                {{ form.submit(class="button", value="Envoyer") }}
             </form>
         </div>
         <div class="card">

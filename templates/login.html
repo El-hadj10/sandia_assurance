@@ -4,15 +4,47 @@
 <section class="section card auth-card">
     <h2>Connexion</h2>
     {% if error %}
-    <p class="alert">{{ error }}</p>
+    <div class="alert alert-error" role="alert">{{ error }}</div>
     {% endif %}
-    <form method="post">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" required />
-        <button class="button" type="submit">Se connecter</button>
+    
+    <form method="post" novalidate>
+        <!-- Token CSRF pour protection contre les attaques CSRF -->
+        {{ form.hidden_tag() }}
+        
+        <!-- Champ email -->
+        <div>
+            {{ form.email.label }}
+            {% if form.email.errors %}
+                {{ form.email(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.email.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.email(class="form-input", placeholder="votre.email@exemple.com") }}
+            {% endif %}
+        </div>
+        
+        <!-- Champ mot de passe -->
+        <div>
+            {{ form.password.label }}
+            {% if form.password.errors %}
+                {{ form.password(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.password(class="form-input") }}
+            {% endif %}
+        </div>
+        
+        <!-- Bouton soumettre -->
+        {{ form.submit(class="button") }}
     </form>
+    
     <p>Pas encore inscrit ? <a href="/register">Créez un compte</a>.</p>
 </section>
 {% endblock %}

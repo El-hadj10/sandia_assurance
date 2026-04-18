@@ -4,17 +4,78 @@
 <section class="section card auth-card">
     <h2>Inscription</h2>
     {% if error %}
-    <p class="alert">{{ error }}</p>
+    <div class="alert alert-error" role="alert">{{ error }}</div>
     {% endif %}
-    <form method="post">
-        <label for="name">Nom</label>
-        <input type="text" id="name" name="name" required />
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" required />
-        <button class="button" type="submit">Créer un compte</button>
+    
+    <form method="post" novalidate>
+        <!-- Token CSRF pour protection -->
+        {{ form.hidden_tag() }}
+        
+        <!-- Champ nom -->
+        <div>
+            {{ form.name.label }}
+            {% if form.name.errors %}
+                {{ form.name(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.name.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.name(class="form-input", placeholder="Votre nom complet") }}
+            {% endif %}
+        </div>
+        
+        <!-- Champ email -->
+        <div>
+            {{ form.email.label }}
+            {% if form.email.errors %}
+                {{ form.email(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.email.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.email(class="form-input", placeholder="votre.email@exemple.com") }}
+            {% endif %}
+        </div>
+        
+        <!-- Champ mot de passe -->
+        <div>
+            {{ form.password.label }}
+            <small>Minimum 8 caractères</small>
+            {% if form.password.errors %}
+                {{ form.password(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.password.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.password(class="form-input") }}
+            {% endif %}
+        </div>
+        
+        <!-- Champ confirmation mot de passe -->
+        <div>
+            {{ form.password_confirm.label }}
+            {% if form.password_confirm.errors %}
+                {{ form.password_confirm(class="form-input error") }}
+                <ul class="errors" role="alert">
+                    {% for error in form.password_confirm.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                {{ form.password_confirm(class="form-input") }}
+            {% endif %}
+        </div>
+        
+        <!-- Bouton soumettre -->
+        {{ form.submit(class="button", value="Créer un compte") }}
     </form>
+    
     <p>Vous avez déjà un compte ? <a href="/login">Connectez-vous</a>.</p>
 </section>
 {% endblock %}

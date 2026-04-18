@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Erreur 404 - Page non trouvée{% endblock %}
+{% block content %}
+<section class="section" style="text-align: center; padding: 4rem 0;">
+    <h1 style="font-size: 4rem; margin: 0; color: #ff8a00;">404</h1>
+    <h2>Page non trouvée</h2>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin: 1.5rem 0;">
+        Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+    </p>
+    <div class="buttons" style="justify-content: center;">
+        <a href="/" class="button">← Retour à l'accueil</a>
+        <a href="/contact" class="button" style="background: rgba(255, 138, 0, 0.2); color: #ff8a00; border: 2px solid #ff8a00;">Contactez-nous</a>
+    </div>
+</section>
+{% endblock %}

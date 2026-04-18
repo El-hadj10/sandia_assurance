@@ -95,13 +95,17 @@ def quote():
         }
 
         # Sauvegarde du devis dans la base de données
-        db = get_db()
-        db.execute(
-            "INSERT INTO quotes (name, age, vehicle_type, coverage, total_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (form.name.data, age, vehicle_type, coverage, total_price, datetime.utcnow().isoformat()),
-        )
-        db.commit()
-        flash("Devis enregistré avec succès !", "success")
+        try:
+            db = get_db()
+            db.execute(
+                "INSERT INTO quotes (name, age, vehicle_type, coverage, total_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (form.name.data, age, vehicle_type, coverage, total_price, datetime.utcnow().isoformat()),
+            )
+            db.commit()
+            flash("Devis enregistré avec succès !", "success")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la sauvegarde du devis: {e}")
+            flash("Erreur lors de la sauvegarde. Veuillez réessayer.", "error")
 
     # Récupère les messages d'erreur du formulaire
     error = None
@@ -122,13 +126,17 @@ def contact():
         contact_message = f"Merci {form.name.data}, votre message a bien été reçu. Notre équipe de {COMPANY_NAME} vous contactera sous peu."
 
         # Sauvegarde du message de contact dans la base de données
-        db = get_db()
-        db.execute(
-            "INSERT INTO contacts (name, email, message, created_at) VALUES (?, ?, ?, ?)",
-            (form.name.data, form.email.data, form.message.data, datetime.utcnow().isoformat()),
-        )
-        db.commit()
-        flash("Votre message a été envoyé avec succès !", "success")
+        try:
+            db = get_db()
+            db.execute(
+                "INSERT INTO contacts (name, email, message, created_at) VALUES (?, ?, ?, ?)",
+                (form.name.data, form.email.data, form.message.data, datetime.utcnow().isoformat()),
+            )
+            db.commit()
+            flash("Votre message a été envoyé avec succès !", "success")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la sauvegarde du contact: {e}")
+            flash("Erreur lors de l'envoi. Veuillez réessayer.", "error")
     
     # Récupère les messages d'erreur du formulaire
     error = None
@@ -148,10 +156,14 @@ def register():
     
     if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
         # Les données du formulaire ont déjà été validées par WTForms
-        password_hash = generate_password_hash(form.password.data)  # Hachage sécurisé du mot de passe
-        create_user(form.name.data, form.email.data, password_hash)  # Création de l'utilisateur
-        flash("Inscription réussie ! Connectez-vous avec vos identifiants.", "success")
-        return redirect(url_for("login"))  # Redirection vers la page de connexion
+        try:
+            password_hash = generate_password_hash(form.password.data)  # Hachage sécurisé du mot de passe
+            create_user(form.name.data, form.email.data, password_hash)  # Création de l'utilisateur
+            flash("Inscription réussie ! Connectez-vous avec vos identifiants.", "success")
+            return redirect(url_for("login"))  # Redirection vers la page de connexion
+        except Exception as e:
+            app.logger.error(f"Erreur lors de l'inscription: {e}")
+            flash("Erreur lors de l'inscription. Veuillez réessayer.", "error")
     
     # Récupère les messages d'erreur du formulaire s'il y en a
     error = None
@@ -168,18 +180,22 @@ def login():
     form = LoginForm()  # Crée une instance du formulaire de connexion
     
     if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
-        user = get_user_by_email(form.email.data)  # Recherche l'utilisateur par email
-        
-        # Vérification du mot de passe
-        if user is None or not check_password_hash(user["password_hash"], form.password.data):
-            flash("Email ou mot de passe incorrect.", "error")
-        else:
-            # Connexion réussie : configuration sécurisée de la session
-            session.clear()
-            session["user_id"] = user["id"]
-            session["user_name"] = user["name"]
-            flash(f"Bienvenue {user['name']} !", "success")
-            return redirect(url_for("account"))  # Redirection vers le compte
+        try:
+            user = get_user_by_email(form.email.data)  # Recherche l'utilisateur par email
+            
+            # Vérification du mot de passe
+            if user is None or not check_password_hash(user["password_hash"], form.password.data):
+                flash("Email ou mot de passe incorrect.", "error")
+            else:
+                # Connexion réussie : configuration sécurisée de la session
+                session.clear()
+                session["user_id"] = user["id"]
+                session["user_name"] = user["name"]
+                flash(f"Bienvenue {user['name']} !", "success")
+                return redirect(url_for("account"))  # Redirection vers le compte
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la connexion: {e}")
+            flash("Erreur de connexion. Veuillez réessayer.", "error")
     
     # Récupère les messages d'erreur du formulaire s'il y en a
     error = None
@@ -225,9 +241,13 @@ def payment():
     
     if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
         # Création de la demande de paiement
-        create_payment(session["user_id"], form.amount.data, form.method.data, status="En attente")
-        message = f"Votre demande de paiement de {form.amount.data}€ a été enregistrée."
-        flash(message, "success")
+        try:
+            create_payment(session["user_id"], form.amount.data, form.method.data, status="En attente")
+            message = f"Votre demande de paiement de {form.amount.data}€ a été enregistrée."
+            flash(message, "success")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la création du paiement: {e}")
+            error = "Erreur lors de la demande de paiement. Veuillez réessayer."
     
     # Récupère les messages d'erreur du formulaire
     error = None
@@ -241,28 +261,28 @@ def payment():
 @app.route("/dossiers", methods=["GET", "POST"])
 @login_required
 def dossiers():
+    form = TrackDossierForm()  # Utilise le même formulaire que track
     message = None  # Message de confirmation, None par défaut
     error = None
     
-    if request.method == "POST":  # Si soumission du formulaire
-        policy_number = request.form.get("policy_number", "").strip()  # Numéro de police
-        notes = request.form.get("notes", "")  # Notes supplémentaires
-        
-        # Validation simple
-        if not policy_number:
-            error = "Veuillez indiquer un numéro de dossier."
-        elif len(policy_number) < 5 or len(policy_number) > 20:
-            error = "Le numéro de police doit faire entre 5 et 20 caractères."
-        else:
+    if form.validate_on_submit():  # Si soumission du formulaire
+        try:
             # Création du dossier
-            create_dossier(session["user_id"], policy_number, notes=notes)
+            create_dossier(session["user_id"], form.policy_number.data, notes=form.notes.data)
             message = "Votre dossier a été créé et est en cours de suivi."
             flash(message, "success")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la création du dossier: {e}")
+            error = "Erreur lors de la création du dossier. Veuillez réessayer."
+    
+    # Récupère les messages d'erreur du formulaire
+    if form.errors and not form.validate_on_submit():
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
     
     user = get_user_by_id(session["user_id"])
     user_dossiers = get_user_dossiers(user["id"])  # Récupération des dossiers pour affichage
     
-    return render_template("dossiers.html", company=COMPANY_NAME, dossiers=user_dossiers, message=message, error=error)
+    return render_template("dossiers.html", company=COMPANY_NAME, dossiers=user_dossiers, message=message, error=error, form=form)
 
 
 # Route pour le suivi de dossier (accessible sans connexion)
@@ -273,12 +293,16 @@ def track():
     dossier_status = None  # Statut du dossier recherché, None par défaut
     
     if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
-        dossier = find_dossier(form.policy_number.data)  # Recherche du dossier
-        if dossier:
-            dossier_status = dossier  # Dossier trouvé
-        else:
-            dossier_status = {"policy_number": form.policy_number.data, "status": "Aucun dossier trouvé.", "notes": ""}
-            flash("Dossier non trouvé.", "warning")
+        try:
+            dossier = find_dossier(form.policy_number.data)  # Recherche du dossier
+            if dossier:
+                dossier_status = dossier  # Dossier trouvé
+            else:
+                dossier_status = {"policy_number": form.policy_number.data, "status": "Aucun dossier trouvé.", "notes": ""}
+                flash("Dossier non trouvé.", "warning")
+        except Exception as e:
+            app.logger.error(f"Erreur lors de la recherche du dossier: {e}")
+            error = "Erreur lors de la recherche. Veuillez réessayer."
     
     # Récupère les messages d'erreur du formulaire
     error = None
