@@ -97,7 +97,8 @@ Des contributions sont les bienvenues ! Merci de consulter `CONTRIBUTING.md` pou
 
 ## Licence
 
-Ce projet est distribué sous la licence MIT. Voir le fichier `LICENSE`.
+Ce projet est distribué sous une licence propriétaire. Tous droits réservés par Sandia Assurance.
+Voir le fichier `LICENSE` pour les termes détaillés.
 
 ## Ressources utiles
 
