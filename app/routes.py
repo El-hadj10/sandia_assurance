@@ -3,10 +3,11 @@
 # incluant l'authentification, les formulaires et les pages statiques
 
 # Imports nécessaires
-from flask import render_template, request, session, redirect, url_for  # Fonctions Flask pour les vues
+from flask import render_template, request, session, redirect, url_for, flash  # Fonctions Flask pour les vues
 from datetime import datetime  # Pour les timestamps
 from werkzeug.security import generate_password_hash, check_password_hash  # Pour le hachage des mots de passe
-from app import app  # L'application Flask
+from app import app, limiter  # L'application Flask et le rate limiter
+from app.forms import RegisterForm, LoginForm, QuoteForm, ContactForm, PaymentForm, TrackDossierForm  # Formulaires validés
 from app.models import (  # Import des modèles et données
     COMPANY_NAME,
     SERVICES,
@@ -58,23 +59,25 @@ def services():
 
 # Route pour le formulaire de devis
 @app.route("/quote", methods=["GET", "POST"])
+@limiter.limit("20 per hour")  # Limite à 20 devis par heure par IP
 def quote():
+    form = QuoteForm()  # Crée une instance du formulaire de devis
     quote_result = None  # Résultat du devis, None par défaut
-    if request.method == "POST":  # Si c'est une requête POST (soumission du formulaire)
-        # Récupération des données du formulaire
-        name = request.form.get("name", "Client")
-        age = int(request.form.get("age", 0))
-        vehicle_type = request.form.get("vehicle_type", "auto")
-        coverage = request.form.get("coverage", "standard")
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        # Les données ont été validées par WTForms
+        age = form.age.data
+        vehicle_type = form.vehicle_type.data
+        coverage = form.coverage.data
 
         # Calcul du prix de base selon le type de véhicule
-        base_price = 240
-        if vehicle_type == "moto":
-            base_price = 210
-        elif vehicle_type == "habitation":
-            base_price = 190
-        elif vehicle_type == "sante":
-            base_price = 220
+        base_price_map = {
+            "auto": 240,
+            "moto": 210,
+            "habitation": 190,
+            "sante": 220
+        }
+        base_price = base_price_map.get(vehicle_type, 240)
 
         # Facteurs multiplicatifs
         age_factor = 1.45 if age < 25 else 1.0  # Majoration pour les jeunes conducteurs
@@ -83,7 +86,7 @@ def quote():
         # Calcul du prix total
         total_price = round(base_price * age_factor * coverage_factor, 2)
         quote_result = {
-            "name": name,
+            "name": form.name.data,
             "age": age,
             "vehicle_type": vehicle_type,
             "coverage": coverage,
@@ -95,87 +98,102 @@ def quote():
         db = get_db()
         db.execute(
             "INSERT INTO quotes (name, age, vehicle_type, coverage, total_price, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, age, vehicle_type, coverage, total_price, datetime.utcnow().isoformat()),
+            (form.name.data, age, vehicle_type, coverage, total_price, datetime.utcnow().isoformat()),
         )
         db.commit()
+        flash("Devis enregistré avec succès !", "success")
 
-    return render_template("quote.html", company=COMPANY_NAME, quote_result=quote_result)
+    # Récupère les messages d'erreur du formulaire
+    error = None
+    if form.errors and not form.validate_on_submit():
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
+
+    return render_template("quote.html", company=COMPANY_NAME, quote_result=quote_result, error=error, form=form)
 
 
 # Route pour le formulaire de contact
 @app.route("/contact", methods=["GET", "POST"])
+@limiter.limit("10 per hour")  # Limite à 10 messages de contact par heure par IP
 def contact():
+    form = ContactForm()  # Crée une instance du formulaire de contact
     contact_message = None  # Message de confirmation, None par défaut
-    if request.method == "POST":  # Si c'est une requête POST
-        # Récupération des données du formulaire
-        contact_name = request.form.get("name", "Client")
-        contact_email = request.form.get("email", "")
-        contact_text = request.form.get("message", "")
-        contact_message = f"Merci {contact_name}, votre message a bien été reçu. Notre équipe de {COMPANY_NAME} vous contactera sous peu."
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        contact_message = f"Merci {form.name.data}, votre message a bien été reçu. Notre équipe de {COMPANY_NAME} vous contactera sous peu."
 
         # Sauvegarde du message de contact dans la base de données
         db = get_db()
         db.execute(
             "INSERT INTO contacts (name, email, message, created_at) VALUES (?, ?, ?, ?)",
-            (contact_name, contact_email, contact_text, datetime.utcnow().isoformat()),
+            (form.name.data, form.email.data, form.message.data, datetime.utcnow().isoformat()),
         )
         db.commit()
+        flash("Votre message a été envoyé avec succès !", "success")
+    
+    # Récupère les messages d'erreur du formulaire
+    error = None
+    if form.errors and not form.validate_on_submit():
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
 
-    return render_template("contact.html", company=COMPANY_NAME, contact_message=contact_message)
+    return render_template("contact.html", company=COMPANY_NAME, contact_message=contact_message, error=error, form=form)
 
 
 # Routes d'authentification
 
 # Route pour l'inscription d'un nouvel utilisateur
 @app.route("/register", methods=["GET", "POST"])
+@limiter.limit("5 per hour")  # Limite à 5 tentatives d'inscription par heure par IP
 def register():
-    error = None  # Message d'erreur, None par défaut
-    if request.method == "POST":  # Si soumission du formulaire
-        # Récupération des données
-        name = request.form.get("name", "")
-        email = request.form.get("email", "")
-        password = request.form.get("password", "")
+    form = RegisterForm()  # Crée une instance du formulaire d'inscription
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        # Les données du formulaire ont déjà été validées par WTForms
+        password_hash = generate_password_hash(form.password.data)  # Hachage sécurisé du mot de passe
+        create_user(form.name.data, form.email.data, password_hash)  # Création de l'utilisateur
+        flash("Inscription réussie ! Connectez-vous avec vos identifiants.", "success")
+        return redirect(url_for("login"))  # Redirection vers la page de connexion
+    
+    # Récupère les messages d'erreur du formulaire s'il y en a
+    error = None
+    if form.errors:
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
 
-        # Validation des champs
-        if not name or not email or not password:
-            error = "Veuillez remplir tous les champs."
-        elif get_user_by_email(email):  # Vérifie si l'email existe déjà
-            error = "Cet email est déjà utilisé."
-        else:
-            # Hachage du mot de passe et création de l'utilisateur
-            password_hash = generate_password_hash(password)
-            create_user(name, email, password_hash)
-            return redirect(url_for("login"))  # Redirection vers la page de connexion
-
-    return render_template("register.html", company=COMPANY_NAME, error=error)
+    return render_template("register.html", company=COMPANY_NAME, error=error, form=form)
 
 
 # Route pour la connexion d'un utilisateur existant
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per hour")  # Limite à 10 tentatives de connexion par heure par IP
 def login():
-    error = None  # Message d'erreur, None par défaut
-    if request.method == "POST":  # Si soumission du formulaire
-        # Récupération des données
-        email = request.form.get("email", "")
-        password = request.form.get("password", "")
-        user = get_user_by_email(email)  # Recherche de l'utilisateur par email
-
-        # Vérification des identifiants
-        if user is None or not check_password_hash(user["password_hash"], password):
-            error = "Email ou mot de passe incorrect."
+    form = LoginForm()  # Crée une instance du formulaire de connexion
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        user = get_user_by_email(form.email.data)  # Recherche l'utilisateur par email
+        
+        # Vérification du mot de passe
+        if user is None or not check_password_hash(user["password_hash"], form.password.data):
+            flash("Email ou mot de passe incorrect.", "error")
         else:
-            # Connexion réussie : stockage de l'ID utilisateur en session
+            # Connexion réussie : configuration sécurisée de la session
             session.clear()
             session["user_id"] = user["id"]
+            session["user_name"] = user["name"]
+            flash(f"Bienvenue {user['name']} !", "success")
             return redirect(url_for("account"))  # Redirection vers le compte
+    
+    # Récupère les messages d'erreur du formulaire s'il y en a
+    error = None
+    if form.errors:
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
 
-    return render_template("login.html", company=COMPANY_NAME, error=error)
+    return render_template("login.html", company=COMPANY_NAME, error=error, form=form)
 
 
 # Route pour la déconnexion
 @app.route("/logout")
 def logout():
-    session.clear()  # Suppression de toutes les données de session
+    session.clear()  # Suppression complète de la session
+    flash("Déconnexion réussie.", "success")
     return redirect(url_for("home"))  # Redirection vers l'accueil
 
 
@@ -200,18 +218,23 @@ def account():
 # Route pour les demandes de paiement (protégée)
 @app.route("/payment", methods=["GET", "POST"])
 @login_required
+@limiter.limit("10 per hour")  # Limite à 10 demandes de paiement par heure par utilisateur
 def payment():
+    form = PaymentForm()  # Crée une instance du formulaire de paiement
     message = None  # Message de confirmation, None par défaut
-    if request.method == "POST":  # Si soumission du formulaire
-        amount = float(request.form.get("amount", 0))  # Montant demandé
-        method = request.form.get("method", "Carte")  # Méthode de paiement
-        if amount <= 0:
-            message = "Veuillez indiquer un montant valide."
-        else:
-            # Création de la demande de paiement
-            create_payment(session["user_id"], amount, method, status="En attente")
-            message = "Votre demande de paiement a été enregistrée."
-    return render_template("payment.html", company=COMPANY_NAME, message=message)
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        # Création de la demande de paiement
+        create_payment(session["user_id"], form.amount.data, form.method.data, status="En attente")
+        message = f"Votre demande de paiement de {form.amount.data}€ a été enregistrée."
+        flash(message, "success")
+    
+    # Récupère les messages d'erreur du formulaire
+    error = None
+    if form.errors and not form.validate_on_submit():
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
+    
+    return render_template("payment.html", company=COMPANY_NAME, message=message, error=error, form=form)
 
 
 # Route pour la gestion des dossiers (protégée)
@@ -219,32 +242,50 @@ def payment():
 @login_required
 def dossiers():
     message = None  # Message de confirmation, None par défaut
+    error = None
+    
     if request.method == "POST":  # Si soumission du formulaire
         policy_number = request.form.get("policy_number", "").strip()  # Numéro de police
         notes = request.form.get("notes", "")  # Notes supplémentaires
+        
+        # Validation simple
         if not policy_number:
-            message = "Veuillez indiquer un numéro de dossier."
+            error = "Veuillez indiquer un numéro de dossier."
+        elif len(policy_number) < 5 or len(policy_number) > 20:
+            error = "Le numéro de police doit faire entre 5 et 20 caractères."
         else:
             # Création du dossier
             create_dossier(session["user_id"], policy_number, notes=notes)
             message = "Votre dossier a été créé et est en cours de suivi."
+            flash(message, "success")
+    
     user = get_user_by_id(session["user_id"])
-    dossiers = get_user_dossiers(user["id"])  # Récupération des dossiers pour affichage
-    return render_template("dossiers.html", company=COMPANY_NAME, dossiers=dossiers, message=message)
+    user_dossiers = get_user_dossiers(user["id"])  # Récupération des dossiers pour affichage
+    
+    return render_template("dossiers.html", company=COMPANY_NAME, dossiers=user_dossiers, message=message, error=error)
 
 
 # Route pour le suivi de dossier (accessible sans connexion)
 @app.route("/track", methods=["GET", "POST"])
+@limiter.limit("30 per hour")  # Limite à 30 recherches par heure par IP
 def track():
+    form = TrackDossierForm()  # Crée une instance du formulaire de suivi
     dossier_status = None  # Statut du dossier recherché, None par défaut
-    if request.method == "POST":  # Si soumission du formulaire
-        policy_number = request.form.get("policy_number", "").strip()  # Numéro de police saisi
-        dossier = find_dossier(policy_number)  # Recherche du dossier
+    
+    if form.validate_on_submit():  # Vérifie si le formulaire est soumis et valide
+        dossier = find_dossier(form.policy_number.data)  # Recherche du dossier
         if dossier:
             dossier_status = dossier  # Dossier trouvé
         else:
-            dossier_status = {"policy_number": policy_number, "status": "Aucun dossier trouvé.", "notes": ""}
-    return render_template("track.html", company=COMPANY_NAME, dossier_status=dossier_status)
+            dossier_status = {"policy_number": form.policy_number.data, "status": "Aucun dossier trouvé.", "notes": ""}
+            flash("Dossier non trouvé.", "warning")
+    
+    # Récupère les messages d'erreur du formulaire
+    error = None
+    if form.errors and not form.validate_on_submit():
+        error = "; ".join([f"{field}: {', '.join(msgs)}" for field, msgs in form.errors.items()])
+    
+    return render_template("track.html", company=COMPANY_NAME, dossier_status=dossier_status, error=error, form=form)
 
 
 # Route pour le tableau de bord admin (non protégé pour la démo)
