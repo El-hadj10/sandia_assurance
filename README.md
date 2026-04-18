@@ -1,49 +1,107 @@
 # sandia_assurance
 
-Petite application d'assurance en ligne pour la compagnie `sandia_assurance`.
+## Description
 
-## Lancement
+`sandia_assurance` est une application Flask de démonstration pour un service d'assurance en ligne. Le projet combine une interface client moderne, une gestion simple des devis, des sessions utilisateurs, un suivi des dossiers, et une simulation de paiement.
 
-1. Créer un environnement virtuel (recommandé) :
+## Technologies
+
+- Python 3
+- Flask
+- SQLite
+- Jinja2
+- HTML/CSS/JavaScript
+
+## Fonctionnalités principales
+
+- Page d'accueil responsive et navigation claire
+- Formulaire de devis interactif avec stockage local dans SQLite
+- Modules d'inscription, connexion et gestion de compte
+- Paiements simulés et historique des transactions
+- Suivi des dossiers clients et statut des demandes
+- Pages statiques : services, contact, à propos
+- Tableau de bord simple pour consultation interne
+
+## Structure du projet
+
+- `run.py` : démarrage de l'application Flask
+- `app/__init__.py` : création de l'application et initialisation du contexte
+- `app/routes.py` : routes web et logique de navigation
+- `app/models.py` : création et accès à la base de données
+- `templates/` : pages HTML Jinja2
+- `static/` : assets CSS, JavaScript et images
+- `requirements.txt` : dépendances Python
+
+## Installation
 
 ```bash
+cd /home/el-hadj-ousmane/Bureau/Sandia_Assurance
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-2.Installer les dépendances dans l'environnement virtuel :
-
-```bash
 pip install -r requirements.txt
 ```
 
-3.Lancer l'application :
+## Exécution
 
 ```bash
 python3 run.py
 ```
 
-4.Ouvrir `http://127.0.0.1:5002` dans un navigateur.
+Ouvrez ensuite :
 
-> Si `python3 -m venv .venv` échoue, installez le paquet système `python3-venv` avec votre gestionnaire de paquets.
+```bash
+http://127.0.0.1:5002
+```
 
-## Fonctionnalités
+> Si `python3 -m venv .venv` échoue, installez `python3-venv` via votre gestionnaire de paquets.
 
-- Interface visuelle moderne et responsive
-- Page d'accueil dynamique avec héros et points forts
-- Présentation des services avec aperçu interactif
-- Formulaire de devis dynamique avec estimation instantanée
-- Stockage des devis et des contacts dans une base de données locale (data.db)
-- Authentification avec connexion et inscription de clients
-- Gestion des paiements et suivi des demandes de règlement
-- Suivi personnalisé des dossiers clients
-- Page de contact soignée avec informations support
-- Page "À propos" avec équipe, avis et FAQ
-- Tableau de bord admin accessible à `/dashboard`
+## Configuration
 
-## Personnalisation des visuels
+- La base SQLite est stockée dans `data.db`.
+- Le secret de session est défini dans `app/__init__.py`.
+- Pour personnaliser le site, modifiez les templates dans `templates/` et les fichiers CSS/JS dans `static/`.
 
-Les images utilisées sont dans `static/images/`. Vous pouvez les remplacer par vos propres illustrations pour personnaliser l'application.
+## Développement
 
-- Un placeholder est déjà disponible dans `static/images/placeholder.svg`.
-- Ajoutez d'autres photos ou SVG dans `static/images/` pour les utiliser dans les pages plus tard.
+1. Activez l'environnement virtuel.
+2. Installez ou mettez à jour les dépendances :
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Vérifiez le code Python :
+
+```bash
+python3 -m py_compile app/__init__.py app/models.py app/routes.py
+```
+
+4. Lancez l'application en développement :
+
+```bash
+python3 run.py
+```
+
+## Tests manuels recommandés
+
+- Créer un compte utilisateur
+- Se connecter et accéder à la page `Mon compte`
+- Soumettre un devis et vérifier l'enregistrement
+- Créer une demande de paiement
+- Vérifier le suivi d'un dossier
+- Envoyer un message depuis la page contact
+
+## Contribuer
+
+Des contributions sont les bienvenues ! Merci de consulter `CONTRIBUTING.md` pour les bonnes pratiques et le flux de contributions.
+
+## Licence
+
+Ce projet est distribué sous la licence MIT. Voir le fichier `LICENSE`.
+
+## Ressources utiles
+
+- `static/` : ressources front-end du site
+- `templates/` : pages et blocs Jinja2
+- `app/models.py` : interaction avec SQLite
+- `app/routes.py` : logique des pages et des formulaires
