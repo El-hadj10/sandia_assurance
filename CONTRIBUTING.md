@@ -14,7 +14,7 @@ git checkout -b feature/mon-ajout
    ```bash
 git push origin feature/mon-ajout
 ```
-5. Ouvrez une Pull Request vers `main` sur le dépôt principal.
+5.Ouvrez une Pull Request vers `main` sur le dépôt principal.
 
 ## Bonnes pratiques
 

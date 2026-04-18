@@ -1,11 +1,18 @@
-import sqlite3
-from datetime import datetime
-from pathlib import Path
-from flask import g
+# app/models.py - Modèles de données et fonctions de base de données
+# Ce fichier définit les structures de données, la connexion à la base SQLite,
+# et les fonctions CRUD pour les utilisateurs, paiements, dossiers, devis et contacts
 
-COMPANY_NAME = "sandia_assurance"
-DB_FILE = Path(__file__).resolve().parent.parent / "data.db"
+# Import des modules nécessaires
+import sqlite3  # Pour la base de données SQLite
+from datetime import datetime  # Pour les timestamps
+from pathlib import Path  # Pour la gestion des chemins de fichiers
+from flask import g  # Contexte Flask pour stocker la connexion DB
 
+# Constantes du projet
+COMPANY_NAME = "sandia_assurance"  # Nom de l'entreprise
+DB_FILE = Path(__file__).resolve().parent.parent / "data.db"  # Chemin absolu vers la base de données
+
+# Liste des services d'assurance proposés
 SERVICES = [
     {
         "title": "Assurance auto",
@@ -29,6 +36,7 @@ SERVICES = [
     }
 ]
 
+# Équipe de l'entreprise
 TEAM = [
     {
         "name": "Aminata Diallo",
@@ -47,6 +55,7 @@ TEAM = [
     }
 ]
 
+# Témoignages clients
 TESTIMONIALS = [
     {
         "name": "Mamadou S.",
@@ -60,6 +69,7 @@ TESTIMONIALS = [
     }
 ]
 
+# Questions fréquemment posées
 FAQ = [
     {
         "question": "Comment obtenir un devis rapidement ?",
@@ -76,13 +86,17 @@ FAQ = [
 ]
 
 
+# Fonction pour obtenir une connexion à la base de données
+# Utilise le contexte Flask 'g' pour éviter les connexions multiples par requête
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DB_FILE)
-        g.db.row_factory = sqlite3.Row
+        g.db.row_factory = sqlite3.Row  # Retourne les résultats sous forme de dictionnaires
     return g.db
 
 
+# Fonction d'initialisation de la base de données
+# Crée toutes les tables nécessaires si elles n'existent pas
 def init_db():
     db = get_db()
     db.executescript(
@@ -133,6 +147,9 @@ def init_db():
     db.commit()
 
 
+# Fonctions CRUD pour les utilisateurs
+
+# Crée un nouvel utilisateur dans la base de données
 def create_user(name, email, password_hash):
     db = get_db()
     db.execute(
@@ -142,16 +159,21 @@ def create_user(name, email, password_hash):
     db.commit()
 
 
+# Récupère un utilisateur par son email
 def get_user_by_email(email):
     db = get_db()
     return db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
 
+# Récupère un utilisateur par son ID
 def get_user_by_id(user_id):
     db = get_db()
     return db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
 
 
+# Fonctions CRUD pour les paiements
+
+# Crée un nouveau paiement pour un utilisateur
 def create_payment(user_id, amount, method, status="pending"):
     db = get_db()
     db.execute(
@@ -161,11 +183,15 @@ def create_payment(user_id, amount, method, status="pending"):
     db.commit()
 
 
+# Récupère tous les paiements d'un utilisateur, triés par date décroissante
 def get_user_payments(user_id):
     db = get_db()
     return db.execute("SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC", (user_id,)).fetchall()
 
 
+# Fonctions CRUD pour les dossiers
+
+# Crée un nouveau dossier pour un utilisateur
 def create_dossier(user_id, policy_number, status="En cours", notes=""):
     db = get_db()
     db.execute(
@@ -175,22 +201,28 @@ def create_dossier(user_id, policy_number, status="En cours", notes=""):
     db.commit()
 
 
+# Récupère tous les dossiers d'un utilisateur, triés par date de mise à jour décroissante
 def get_user_dossiers(user_id):
     db = get_db()
     return db.execute("SELECT * FROM dossiers WHERE user_id = ? ORDER BY updated_at DESC", (user_id,)).fetchall()
 
 
+# Recherche un dossier par numéro de police
 def find_dossier(policy_number):
     db = get_db()
     return db.execute("SELECT * FROM dossiers WHERE policy_number = ?", (policy_number,)).fetchone()
 
 
+# Fonctions de configuration de la base de données
+
+# Configure la base de données au démarrage de l'application
 def setup_database():
     from app import app
     with app.app_context():
         init_db()
 
 
+# Nettoie la connexion à la base de données à la fin de chaque requête
 def teardown_appcontext(exception):
     db = g.pop("db", None)
     if db is not None:

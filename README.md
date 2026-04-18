@@ -70,13 +70,13 @@ http://127.0.0.1:5002
 pip install -r requirements.txt
 ```
 
-3. Vérifiez le code Python :
+3.Vérifiez le code Python :
 
 ```bash
 python3 -m py_compile app/__init__.py app/models.py app/routes.py
 ```
 
-4. Lancez l'application en développement :
+4.Lancez l'application en développement :
 
 ```bash
 python3 run.py
