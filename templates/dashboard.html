@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="card">
+        <h2>Tableau de bord</h2>
+        <p>Vue d'ensemble des demandes de devis et des messages envoyés via le site.</p>
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>{{ total_quotes }}</h3>
+                <p>Devis enregistrés</p>
+            </div>
+            <div class="card">
+                <h3>{{ total_contacts }}</h3>
+                <p>Contacts reçus</p>
+            </div>
+            <div class="card">
+                <h3>{{ latest_quote_type }}</h3>
+                <p>Dernier type de contrat demandé</p>
+            </div>
+            <div class="card">
+                <h3>{{ latest_contact_name }}</h3>
+                <p>Dernier message reçu</p>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <h3>Derniers devis</h3>
+        <div class="cards">
+            {% for quote in recent_quotes %}
+            <div class="card">
+                <p><strong>{{ quote.name }}</strong> — <span>{{ quote.vehicle_type }} / {{ quote.coverage }}</span></p>
+                <p>Âge : {{ quote.age }} | Prix : <strong>{{ quote.total_price }} €</strong></p>
+                <p>Date : {{ quote.created_at }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h3>Derniers messages</h3>
+        <div class="cards">
+            {% for contact in recent_contacts %}
+            <div class="card">
+                <p><strong>{{ contact.name }}</strong> — {{ contact.email }}</p>
+                <p>{{ contact.message }}</p>
+                <p>Date : {{ contact.created_at }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h3>Résumé des demandendes</h3>
+        <div class="stats">
+            {% for summary in type_summary %}
+            <div class="card">
+                <h4>{{ summary.vehicle_type }}</h4>
+                <p>{{ summary.count }} demandes</p>
+            </div>
+            {% endfor %}
+            {% for summary in coverage_summary %}
+            <div class="card">
+                <h4>{{ summary.coverage }}</h4>
+                <p>{{ summary.count }} demandes</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

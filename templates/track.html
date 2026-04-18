@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Recherche de dossier{% endblock %}
+{% block content %}
+<section class="section card auth-card">
+    <h2>Rechercher un dossier</h2>
+    <form method="post">
+        <label for="policy_number">Numéro de dossier</label>
+        <input type="text" id="policy_number" name="policy_number" required />
+        <button class="button" type="submit">Rechercher</button>
+    </form>
+    {% if dossier_status %}
+    <div class="card">
+        <h3>Résultat pour {{ dossier_status.policy_number }}</h3>
+        <p><strong>Statut :</strong> {{ dossier_status.status }}</p>
+        {% if dossier_status.notes %}
+        <p><strong>Notes :</strong> {{ dossier_status.notes }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

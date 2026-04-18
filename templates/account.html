@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Mon compte{% endblock %}
+{% block content %}
+<section class="section card">
+    <h2>Bienvenue, {{ user.name }}</h2>
+    <p>Email : {{ user.email }}</p>
+    <div class="card grid-2">
+        <div>
+            <h3>Mes dossiers</h3>
+            {% if dossiers %}
+                <ul class="list">
+                {% for dossier in dossiers %}
+                    <li><strong>{{ dossier.policy_number }}</strong> — {{ dossier.status }}<br>{{ dossier.notes }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucun dossier enregistré pour le moment.</p>
+            {% endif %}
+            <a class="button" href="/dossiers">Créer un dossier</a>
+        </div>
+        <div>
+            <h3>Mes paiements</h3>
+            {% if payments %}
+                <ul class="list">
+                {% for payment in payments %}
+                    <li>{{ payment.amount }} € — {{ payment.method }} — {{ payment.status }} ({{ payment.created_at }})</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucun paiement enregistré pour le moment.</p>
+            {% endif %}
+            <a class="button" href="/payment">Effectuer un paiement</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

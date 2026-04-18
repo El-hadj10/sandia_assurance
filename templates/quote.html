@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}Devis{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="cards">
+        <div class="card">
+            <h2>Demande de devis</h2>
+            <p>Calculez un tarif de base en direct, puis confirmez votre choix en quelques minutes.</p>
+            <form method="post">
+                <label for="name">Nom</label>
+                <input type="text" id="name" name="name" placeholder="Votre nom" required />
+                <label for="age">Âge</label>
+                <input type="number" id="age" name="age" min="18" max="120" placeholder="Âge du conducteur" required />
+                <label for="vehicle_type">Type de contrat</label>
+                <select id="vehicle_type" name="vehicle_type">
+                    <option value="auto">Assurance auto</option>
+                    <option value="moto">Assurance moto</option>
+                    <option value="habitation">Assurance habitation</option>
+                    <option value="sante">Assurance santé</option>
+                </select>
+                <label for="coverage">Niveau de couverture</label>
+                <select id="coverage" name="coverage">
+                    <option value="standard">Standard</option>
+                    <option value="premium">Premium</option>
+                </select>
+                <button class="button" type="submit">Calculer mon devis</button>
+            </form>
+        </div>
+        <div class="card preview-card">
+            <h2>Aperçu instantané</h2>
+            <p>Les informations du formulaire sont affichées en temps réel pour vous aider à prendre la meilleure décision.</p>
+            <div class="card">
+                <h4>Nom</h4>
+                <p id="preview-name">Client</p>
+            </div>
+            <div class="card">
+                <h4>Âge</h4>
+                <p id="preview-age">25</p>
+            </div>
+            <div class="card">
+                <h4>Type de contrat</h4>
+                <p id="preview-type">auto</p>
+            </div>
+            <div class="card">
+                <h4>Couverture</h4>
+                <p id="preview-coverage">standard</p>
+            </div>
+            <div class="card">
+                <h4>Prix estimé</h4>
+                <p id="preview-price">240.00 €</p>
+            </div>
+        </div>
+    </div>
+    {% if quote_result %}
+    <div class="card">
+        <h3>Estimation pour {{ quote_result.name }}</h3>
+        <p>{{ quote_result.message }}</p>
+        <div class="cards">
+            <div class="card">
+                <h4>Type de contrat</h4>
+                <p>{{ quote_result.vehicle_type }}</p>
+            </div>
+            <div class="card">
+                <h4>Couverture</h4>
+                <p>{{ quote_result.coverage }}</p>
+            </div>
+            <div class="card">
+                <h4>Prix estimé</h4>
+                <p><strong>{{ quote_result.total_price }} €</strong></p>
+            </div>
+        </div>
+        <p>Ce tarif est indicatif. Contactez-nous pour finaliser votre proposition et obtenir un contrat adapté.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

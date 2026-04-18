@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}À propos{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="card">
+        <h2>Pourquoi choisir {{ company }} ?</h2>
+        <p>{{ company }} allie l'agilité d'une assurance en ligne avec un service humain, réactif et transparent. Nous construisons des solutions simples pour des besoins réels.</p>
+    </div>
+    <div class="cards highlight-grid">
+        {% for member in team %}
+        <article class="highlight-card">
+            <h3>{{ member.name }}</h3>
+            <p><strong>{{ member.role }}</strong></p>
+            <p>{{ member.description }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="card">
+        <h3>Ce que disent nos clients</h3>
+        <div class="testimonials">
+            {% for review in testimonials %}
+            <div class="testimonial">
+                <p>“{{ review.quote }}”</p>
+                <p><strong>{{ review.name }}</strong> — {{ review.role }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h3>Questions fréquentes</h3>
+        <div class="cards">
+            {% for item in faq %}
+            <div class="highlight-card">
+                <h4>{{ item.question }}</h4>
+                <p>{{ item.answer }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section/div>
+</section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}Contact{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="cards">
+        <div class="card">
+            <h2>Parlons de votre protection</h2>
+            <p>Écrivez-nous et notre équipe vous répondra en priorité. Nous traitons chaque demande avec soin.</p>
+            <form method="post">
+                <label for="name">Nom</label>
+                <input type="text" id="name" name="name" placeholder="Votre nom" required />
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="votre@email.com" required />
+                <label for="message">Message</label>
+                <textarea id="message" name="message" rows="5" placeholder="Votre message" required></textarea>
+                <button class="button" type="submit">Envoyer</button>
+            </form>
+        </div>
+        <div class="card">
+            <h3>Informations</h3>
+            <div class="highlight-card">
+                <h4>Service client</h4>
+                <p>contact@sandia_assurance.com</p>
+            </div>
+            <div class="highlight-card">
+                <h4>Rappel rapide</h4>
+                <p>Demandez un conseiller pour un suivi personnalisé.</p>
+            </div>
+            <div class="highlight-card">
+                <h4>Suivi</h4>
+                <p>Les demandes sont traitées sous 24 heures ouvrées.</p>
+            </div
+                <p>contact@sandia_assurance.com</p>
+            </div>
+            <div class="highlight-card">
+                <h4>Rappel rapide</h4>
+                <p>Demandez un conseiller pour un suivi personnalisé.</p>
+            </div>
+            <div class="highlight-card">
+                <h4>Suivi</h4>
+                <p>Les demandes sont traitées sous 24 heures ouvrées.</p>
+            </div>
+        </div>
+    </div>
+    {% if contact_message %}
+    <div class="card">
+        <h3>Message envoyé</h3>
+        <p>{{ contact_message }}</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

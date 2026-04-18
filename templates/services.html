@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<section class="section">
+    <div class="card">
+        <h2>Nos services</h2>
+        <p>Des garanties complètes pour vous aider à protéger ce qui compte le plus, simplement et efficacement.</p>
+    </div>
+    <div class="cards">
+        <div class="service-preview-card card">
+            <h3>Aperçu rapide</h3>
+            <img id="service-preview-image" src="{{ url_for('static', filename=services[0].image) }}" alt="Aperçu du service" />
+            <h3 id="service-preview-title">{{ services[0].title }}</h3>
+            <p id="service-preview-description">{{ services[0].description }}</p>
+            <p class="help-text">Clique sur une offre pour en découvrir les détails.</p>
+        </div>
+        <div class="card">
+            <div class="cards">
+                {% for service in services %}
+                <article class="service-card" data-title="{{ service.title }}" data-description="{{ service.description }}" data-img="{{ url_for('static', filename=service.image) }}">
+                    <img src="{{ url_for('static', filename=service.image) }}" alt="{{ service.title }}" />
+                    <div>
+                        <h3>{{ service.title }}</h3>
+                        <p>{{ service.description }}</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

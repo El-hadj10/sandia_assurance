@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ company }} | {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <div class="brand">
+                <span class="brand-mark">EA</span>
+                <div>
+                    <h1>{{ company }}</h1>
+                    <p>Assurance digitale, simple et humaine</p>
+                </div>
+            </div>
+            <nav>
+                <a href="/" class="{{ 'active' if request.path == '/' else '' }}">Accueil</a>
+                <a href="/services" class="{{ 'active' if request.path == '/services' else '' }}">Services</a>
+                <a href="/quote" class="{{ 'active' if request.path == '/quote' else '' }}">Devis</a>
+                <a href="/about" class="{{ 'active' if request.path == '/about' else '' }}">À propos</a>
+                <a href="/contact" class="{{ 'active' if request.path == '/contact' else '' }}">Contact</a>
+                {% if session.user_id %}
+                    <a href="/account" class="{{ 'active' if request.path == '/account' else '' }}">Mon compte</a>
+                    <a href="/logout">Déconnexion</a>
+                {% else %}
+                    <a href="/login" class="{{ 'active' if request.path == '/login' else '' }}">Connexion</a>
+                    <a href="/register" class="{{ 'active' if request.path == '/register' else '' }}">Inscription</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    <main class="container site-main">
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <div class="container footer-inner">
+            <p>© {{ company }} — Assurance en ligne moderne</p>
+            <p>Flask • SQLite • Expérience rapide</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/service-preview.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/quote-preview.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

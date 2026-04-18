@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<section class="hero section-hero">
+    <div>
+        <p class="eyebrow">Assurance accessible</p>
+        <h2>sandia_assurance, l'assurance en ligne qui protège vos projets</h2>
+        <p>Découvrez des offres claires, un accompagnement humain, et des devis instantanés pour votre voiture, votre logement, votre santé et votre deux-roues.</p>
+        <div class="buttons">
+            <a class="button" href="/quote">Obtenir un devis</a>
+            <a class="button" href="/services">Voir les services</a>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='images/hero.svg') }}" alt="Illustration assurance" />
+    </div>
+</section>
+<section class="section">
+    <div class="cards highlight-grid">
+        <article class="highlight-card">
+            <h3>Protection sur mesure</h3>
+            <p>Choisissez des garanties adaptées à votre profil et à vos objectifs, sans perdre de temps.</p>
+        </article>
+        <article class="highlight-card">
+            <h3>Transparence totale</h3>
+            <p>Tarifs clairs, explications simples et pas de surprises à la signature.</p>
+        </article>
+        <article class="highlight-card">
+            <h3>Support réactif</h3>
+            <p>Une équipe dédiée pour répondre rapidement à vos questions et vous accompagner.</p>
+        </article>
+    </div>
+</section>
+<section class="section">
+    <div class="card">
+        <h3>Nos services</h3>
+        <div class="cards">
+            {% for service in services %}
+            <article class="card service-card">
+                <img src="{{ url_for('static', filename=service.image) }}" alt="{{ service.title }}" />
+                <div>
+                    <h4>{{ service.title }}</h4>
+                    <p>{{ service.description }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="card">
+        <h3>Ce que disent nos clients</h3>
+        <div class="testimonials">
+            {% for review in testimonials %}
+            <div class="testimonial">
+                <p>“{{ review.quote }}”</p>
+                <p><strong>{{ review.name }}</strong> — {{ review.role }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
