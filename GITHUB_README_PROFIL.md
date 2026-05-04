@@ -3,6 +3,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/El-hadj10/sandia_assurance">
+    <img src="https://img.shields.io/badge/GitHub-sandia__assurance-2e86ab?style=for-the-badge&logo=github&logoColor=white" />
+  </a>
   <img src="https://img.shields.io/badge/Python-3.x-3572A5?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/Flask-Backend-000000?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/SQLite-Base%20de%20donn%C3%A9es-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
@@ -11,11 +14,13 @@
 
 ---
 
-## Description
+## A propos
 
 **Sandia Assurance** est une application Flask de demonstration pour un service d'assurance en ligne.
 
 Le projet combine une interface client moderne, une gestion des devis, des sessions utilisateurs, un suivi des dossiers et une simulation de paiement — le tout sur une base SQLite legere.
+
+> Devis, compte, paiement, suivi de dossier — une experience assurance complete en local.
 
 ---
 
@@ -51,13 +56,13 @@ sandia_assurance/
 
 ## Stack technique
 
-| Couche          | Technologie                     |
-|-----------------|---------------------------------|
-| Backend         | Python 3 · Flask                |
-| Templating      | Jinja2                          |
-| Base de donnees | SQLite (`data.db`)              |
-| Frontend        | HTML · CSS · JavaScript vanilla |
-| Formulaires     | Flask-WTF                       |
+| Couche      | Technologie                    |
+|-------------|--------------------------------|
+| Backend     | Python 3 · Flask               |
+| Templating  | Jinja2                         |
+| Base de donnees | SQLite (`data.db`)         |
+| Frontend    | HTML · CSS · JavaScript vanilla|
+| Formulaires | Flask-WTF                      |
 
 ---
 
@@ -74,45 +79,17 @@ sandia_assurance/
 
 ---
 
-## Installation
+## Installation & lancement
 
 ```bash
 cd sandia_assurance
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-## Execution
-
-```bash
 python3 run.py
 ```
 
 Application disponible sur : **http://127.0.0.1:5002**
-
----
-
-## Developpement
-
-1. Activer l'environnement virtuel.
-2. Installer ou mettre a jour les dependances :
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Verifier la syntaxe Python :
-
-```bash
-python3 -m py_compile app/__init__.py app/models.py app/routes.py
-```
-
-4. Lancer l'application :
-
-```bash
-python3 run.py
-```
 
 ---
 
@@ -129,12 +106,6 @@ python3 run.py
 
 ---
 
-## Contribuer
-
-Les contributions sont les bienvenues. Consulter [CONTRIBUTING.md](CONTRIBUTING.md) pour le flux de contributions.
-
----
-
 ## Roadmap
 
 - [ ] Authentification JWT / OAuth2
@@ -143,13 +114,6 @@ Les contributions sont les bienvenues. Consulter [CONTRIBUTING.md](CONTRIBUTING.
 - [ ] Generation de PDF pour les contrats
 - [ ] Migration vers PostgreSQL pour la production
 - [ ] Deploiement Docker + Nginx
-
----
-
-## Licence
-
-Ce projet est distribue sous une licence proprietaire. Tous droits reserves par Sandia Assurance.
-Voir le fichier [LICENSE](LICENSE) pour les conditions completes.
 
 ---
 
